@@ -2,14 +2,11 @@ package com.photoid.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
-import android.widget.ImageView;
-import android.widget.SimpleCursorAdapter;
 
 import com.photoid.widget.SquaredImageView;
 import com.squareup.picasso.Picasso;
