@@ -90,7 +90,9 @@ public class MainActivity extends ActionBarActivity {
                         public void onResult(RemoteMediaPlayer.MediaChannelResult result) {
                             if (result.getStatus().isSuccess()) {
                                 Log.d(TAG, "Media loaded successfully");
-                            } else
+                            } else {
+                                Log.d(TAG, "Error on load media");
+                            }
                         }
                     });
         } catch (IllegalStateException e) {
