@@ -14,6 +14,7 @@ import android.support.v7.media.MediaRouter;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.dropbox.chooser.android.DbxChooser;
 import com.google.android.gms.cast.Cast;
@@ -51,6 +52,7 @@ If joining the application succeeds, it confirms that the same session is still 
 However, if joining the application fails, a different session is now running on the device so you need to disconnect from the CastDevice instance.
      */
 
+    // FIXME: tentativa de reconexao apos 'matar' aplicacao nao funciona
     // FIXME: onApplicationStatusChanged chamado varias vezes apos reconexao
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -72,16 +74,29 @@ However, if joining the application fails, a different session is now running on
     private MediaRouter.RouteInfo routeToReconnect;
     private SharedPreferences preferences;
 
+    private SourceSelectionFragment sourceSelectionFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
+            sourceSelectionFragment = new SourceSelectionFragment();
             getFragmentManager().beginTransaction()
-                    .add(R.id.container, new SourceSelectionFragment())
+                    .add(R.id.container, sourceSelectionFragment, "selection")
                     .commit();
+        } else {
+            sourceSelectionFragment = (SourceSelectionFragment) getFragmentManager().findFragmentByTag("selection");
         }
 
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        initializeMediaRouterSelector();
+
+        reconnectToDeviceIfPossible();
+    }
+
+    private void initializeMediaRouterSelector() {
         mediaRouter = MediaRouter.getInstance(getApplicationContext());
 
         String categoryForCast = CastMediaControlIntent.categoryForCast(
@@ -92,13 +107,9 @@ However, if joining the application fails, a different session is now running on
                 .build();
 
         mediaRouterCallback = new MediaRouterCallback();
-
-        preferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-        reconnectIfPossible();
     }
 
-    private void reconnectIfPossible() {
+    private void reconnectToDeviceIfPossible() {
         if (hasPreviousSession()) {
             for (MediaRouter.RouteInfo routeInfo : mediaRouter.getRoutes()) {
                 if (routeInfo.getId().equals(this.routeId)) {
@@ -121,7 +132,6 @@ However, if joining the application fails, a different session is now running on
     private boolean hasPreviousSession() {
         this.routeId = preferences.getString("routeId", null);
         this.sessionId = preferences.getString("sessionId", null);
-
         return this.routeId != null && this.sessionId != null;
     }
 
@@ -134,6 +144,8 @@ However, if joining the application fails, a different session is now running on
     }
 
     private void showOnCastDevice(Uri link) {
+        sourceSelectionFragment.showWaiting();
+
         MediaMetadata mediaMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_PHOTO);
         mediaMetadata.putString(MediaMetadata.KEY_TITLE, link.toString());
         MediaInfo mediaInfo = new MediaInfo.Builder(
@@ -147,10 +159,12 @@ However, if joining the application fails, a different session is now running on
                     .setResultCallback(new ResultCallback<RemoteMediaPlayer.MediaChannelResult>() {
                         @Override
                         public void onResult(RemoteMediaPlayer.MediaChannelResult result) {
+                            sourceSelectionFragment.hideWaiting();
+
                             if (result.getStatus().isSuccess()) {
-                                Log.d(TAG, "Media loaded successfully");
+                                Toast.makeText(MainActivity.this, R.string.load_ok, Toast.LENGTH_LONG).show();
                             } else {
-                                Log.d(TAG, "Error on load media");
+                                Toast.makeText(MainActivity.this, R.string.load_nok, Toast.LENGTH_LONG).show();
                             }
                         }
                     });
@@ -254,6 +268,8 @@ However, if joining the application fails, a different session is now running on
         Cast.CastOptions.Builder apiOptionsBuilder = Cast.CastOptions
                 .builder(castDevice, new CastListener());
 
+        Log.d(TAG, "apiClient is null ? " + (apiClient == null));
+
         apiClient = new GoogleApiClient.Builder(this)
                 .addApi(Cast.API, apiOptionsBuilder.build())
                 .addConnectionCallbacks(this)
@@ -315,12 +331,14 @@ However, if joining the application fails, a different session is now running on
                 Log.d(TAG, "selecting route for reconnection");
                 mediaRouter.selectRoute(routeToReconnect);
             }
+            this.sessionId = result.getSessionId();
 
-            sessionId = result.getSessionId();
+            Log.d(TAG, "received sessionId = " + this.sessionId);
+
             applicationStarted = true;
 
             SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("sessionId", sessionId);
+            editor.putString("sessionId", this.sessionId);
             editor.apply();
 
             createChannel();

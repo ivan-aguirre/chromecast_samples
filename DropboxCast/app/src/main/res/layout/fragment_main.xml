@@ -13,9 +13,8 @@
         android:layout_height="wrap_content"
         android:text="@string/label_dropbox"
         android:id="@+id/btn_dropbox"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="75dp" />
+        android:layout_below="@+id/loadingBar"
+        android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="match_parent"
@@ -26,4 +25,14 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:gravity="center_horizontal" />
+
+    <ProgressBar
+        android:id="@+id/loadingBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView"
+        android:layout_centerHorizontal="true"
+        android:indeterminate="true"
+        android:indeterminateBehavior="cycle"
+        android:visibility="visible" />
 </RelativeLayout>

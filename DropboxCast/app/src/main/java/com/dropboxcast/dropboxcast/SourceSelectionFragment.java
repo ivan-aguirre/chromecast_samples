@@ -6,14 +6,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 
 import com.dropbox.chooser.android.DbxChooser;
 
 public class SourceSelectionFragment extends Fragment {
 
-    private static final String APP_KEY = "ubphzyrw12f9ecz";
-    private Button mChooserButton;
-    private DbxChooser mChooser;
+    private static final String APP_KEY = "ubphzyrw12f9ecz"; //FIXME remover da build
+    private ProgressBar loadingBar;
 
     public SourceSelectionFragment() {
     }
@@ -23,9 +23,9 @@ public class SourceSelectionFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        mChooser = new DbxChooser(APP_KEY);
+        final DbxChooser mChooser = new DbxChooser(APP_KEY);
 
-        mChooserButton = (Button) rootView.findViewById(R.id.btn_dropbox);
+        Button mChooserButton = (Button) rootView.findViewById(R.id.btn_dropbox);
         mChooserButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -34,6 +34,17 @@ public class SourceSelectionFragment extends Fragment {
             }
         });
 
+        loadingBar = (ProgressBar) rootView.findViewById(R.id.loadingBar);
+        loadingBar.setVisibility(View.INVISIBLE);
+
         return rootView;
+    }
+
+    public void hideWaiting() {
+        loadingBar.setVisibility(View.INVISIBLE);
+    }
+
+    public void showWaiting() {
+        loadingBar.setVisibility(View.VISIBLE);
     }
 }

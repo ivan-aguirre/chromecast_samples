@@ -3,8 +3,8 @@
     version="2"
     xmlns:ns1="https://android.dropbox.com/StringsSchema" >
 
-    <dataSet config="21.0.0-rc1" >
-        <source path="/Users/ivandeaguirre/dev/chromecast_samples/DropboxCast/build/intermediates/exploded-aar/com.android.support/support-v4/21.0.0-rc1/res" />
+    <dataSet config="20.0.0" >
+        <source path="/Users/ivandeaguirre/dev/chromecast_samples/DropboxCast/build/intermediates/exploded-aar/com.android.support/support-v4/20.0.0/res" />
     </dataSet>
     <dataSet config="main" >
         <source path="/Users/ivandeaguirre/dev/chromecast_samples/DropboxCast/dropboxChooserSDK/src/main/res" >

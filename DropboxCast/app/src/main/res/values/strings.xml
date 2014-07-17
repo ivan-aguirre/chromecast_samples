@@ -6,5 +6,7 @@
     <string name="label_dropbox">Dropbox</string>
     <string name="text_select_source">Selecione um local para exibir suas fotos e vídeos.</string>
     <string name="media_route_menu_title">Selecione um Chromecast</string>
+    <string name="load_ok">Media loaded successfully</string>
+    <string name="load_nok">Error on load media</string>
 
 </resources>
