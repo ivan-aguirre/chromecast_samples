@@ -2,8 +2,10 @@ package com.dropboxcast.dropboxcast;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.MediaRouteActionProvider;
@@ -12,10 +14,8 @@ import android.support.v7.media.MediaRouter;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.dropbox.chooser.android.DbxChooser;
-import com.google.android.gms.cast.ApplicationMetadata;
 import com.google.android.gms.cast.Cast;
 import com.google.android.gms.cast.CastDevice;
 import com.google.android.gms.cast.CastMediaControlIntent;
@@ -24,27 +24,50 @@ import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.RemoteMediaPlayer;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 
 import java.io.IOException;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements
+                        GoogleApiClient.ConnectionCallbacks,
+                        GoogleApiClient.OnConnectionFailedListener,
+                        ResultCallback<Cast.ApplicationConnectionResult>,
+                        RemoteMediaPlayer.OnStatusUpdatedListener,
+                        RemoteMediaPlayer.OnMetadataUpdatedListener {
 
-    //TODO: salvar o estado no loading
+    /*
+    TODO
+
+If the app couldn’t find a matching route from MediaRouter.getRoutes(),
+it could be that the route is not discovered yet by the asynchronous discovery process.
+Start a timer with a short life time, like 5 seconds, and start listening to the routes reported by MediaRouter.Callback.onRouteAdded.
+If the desired route doesn’t show up before the timer expires, you can stop the reconnection process.
+
+If the persisted route ID is matched before the timer expires, extract the CastDevice instance from that route.
+Connect to the CastDevice instance using GoogleApiClient.connect() and once connected, call Cast.CastApi.joinApplication() with the persisted session ID.
+If joining the application succeeds, it confirms that the same session is still running, and MediaRouter.selectRoute() can be called with the stored RouteInfo instance.
+However, if joining the application fails, a different session is now running on the device so you need to disconnect from the CastDevice instance.
+     */
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private MediaRouter mediaRouter;
-
     private MediaRouteSelector mediaRouteSelector;
+    private MediaRouterCallback mediaRouterCallback;
 
     private CastDevice selectedDevice;
-
-    private MyMediaRouterCallback mediaRouterCallback;
-
-    private GoogleApiClient apiClient;
     private RemoteMediaPlayer mRemoteMediaPlayer;
+    private GoogleApiClient apiClient;
+
+    private boolean mWaitingForReconnect;
+
+    private boolean applicationStarted;
+
     private String sessionId;
+    private String routeId;
+    private MediaRouter.RouteInfo routeToReconnect;
+    private SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,12 +81,45 @@ public class MainActivity extends ActionBarActivity {
 
         mediaRouter = MediaRouter.getInstance(getApplicationContext());
 
+        String categoryForCast = CastMediaControlIntent.categoryForCast(
+                CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID);
+
         mediaRouteSelector = new MediaRouteSelector.Builder()
-                .addControlCategory(CastMediaControlIntent.categoryForCast(
-                        CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID))
+                .addControlCategory(categoryForCast)
                 .build();
 
-        mediaRouterCallback = new MyMediaRouterCallback();
+        mediaRouterCallback = new MediaRouterCallback();
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        reconnectIfPossible();
+    }
+
+    private void reconnectIfPossible() {
+        if (hasPreviousSession()) {
+            for (MediaRouter.RouteInfo routeInfo : mediaRouter.getRoutes()) {
+                if (routeInfo.getId().equals(this.routeId)) {
+                    routeToReconnect = routeInfo;
+                    Log.d(TAG, "Route found: " + routeInfo);
+                    break;
+                }
+            }
+
+            if (routeToReconnect != null) {
+                selectedDevice = CastDevice.getFromBundle(routeToReconnect.getExtras());
+                mWaitingForReconnect = true;
+                connectToDevice(selectedDevice);
+            } else {
+                teardown();
+            }
+        }
+    }
+
+    private boolean hasPreviousSession() {
+        this.routeId = preferences.getString("routeId", null);
+        this.sessionId = preferences.getString("sessionId", null);
+
+        return this.routeId != null && this.sessionId != null;
     }
 
     @Override
@@ -76,7 +132,7 @@ public class MainActivity extends ActionBarActivity {
 
     private void showOnCastDevice(Uri link) {
         MediaMetadata mediaMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_PHOTO);
-        mediaMetadata.putString(MediaMetadata.KEY_TITLE, "My video");
+        mediaMetadata.putString(MediaMetadata.KEY_TITLE, link.toString());
         MediaInfo mediaInfo = new MediaInfo.Builder(
                 link.toString())
                 .setContentType("image/jpeg")
@@ -149,107 +205,149 @@ public class MainActivity extends ActionBarActivity {
         super.onStop();
     }
 
-    private class MyMediaRouterCallback extends MediaRouter.Callback {
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public void onStatusUpdated() {
+
+    }
+
+    @Override
+    public void onMetadataUpdated() {
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        teardown();
+    }
+
+    private class MediaRouterCallback extends MediaRouter.Callback {
 
         @Override
         public void onRouteSelected(MediaRouter router, MediaRouter.RouteInfo info) {
             selectedDevice = CastDevice.getFromBundle(info.getExtras());
-            String routeId = info.getId();
-            Toast.makeText(getApplicationContext(), "ID: " + routeId, Toast.LENGTH_LONG).show();
+            routeId = info.getId();
 
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("routeId", routeId);
+            editor.commit();
 
-            Cast.CastOptions.Builder apiOptionsBuilder = Cast.CastOptions
-                    .builder(selectedDevice, castClientListener);
-
-            apiClient = new GoogleApiClient.Builder(MainActivity.this)
-                    .addApi(Cast.API, apiOptionsBuilder.build())
-                    .addConnectionCallbacks(connectionCallbacks)
-                    .addOnConnectionFailedListener(new ConnectionFailedListener())
-                    .build();
-
-            apiClient.connect();
+            connectToDevice(selectedDevice);
         }
 
         @Override
         public void onRouteUnselected(MediaRouter router, MediaRouter.RouteInfo info) {
+            teardown();
             selectedDevice = null;
         }
     }
 
-    private boolean mWaitingForReconnect;
+    private void connectToDevice(CastDevice castDevice) {
+        Log.d(TAG, "connecting to " + castDevice);
 
-    private boolean applicationStarted;
-    private GoogleApiClient.ConnectionCallbacks connectionCallbacks = new GoogleApiClient.ConnectionCallbacks() {
+        Cast.CastOptions.Builder apiOptionsBuilder = Cast.CastOptions
+                .builder(castDevice, new CastListener());
+
+        apiClient = new GoogleApiClient.Builder(this)
+                .addApi(Cast.API, apiOptionsBuilder.build())
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+
+        apiClient.connect();
+    }
+
+    private class CastListener extends Cast.Listener {
         @Override
-        public void onConnected(Bundle connectionHint) {
-            if (mWaitingForReconnect) {
-                mWaitingForReconnect = false;
-                reconnectChannels();
-            } else {
-                try {
-                    Cast.CastApi.launchApplication(apiClient, CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID, false)
-                            .setResultCallback(
-                                    new ResultCallback<Cast.ApplicationConnectionResult>() {
-                                        @Override
-                                        public void onResult(Cast.ApplicationConnectionResult result) {
-                                            Status status = result.getStatus();
-                                            if (status.isSuccess()) {
-                                                ApplicationMetadata applicationMetadata = result.getApplicationMetadata();
-                                                sessionId = result.getSessionId();
-                                                String applicationStatus = result.getApplicationStatus();
-                                                boolean wasLaunched = result.getWasLaunched();
+        public void onApplicationStatusChanged() {
+            if (apiClient != null) {
+                Log.d(TAG, "onApplicationStatusChanged: "
+                        + Cast.CastApi.getApplicationStatus(apiClient).);
 
-                                                applicationStarted = true;
+                Cast.CastApi.getA
 
-                                                createChannel();
-
-                                            } else {
-                                                teardown();
-                                            }
-                                        }
-                                    });
-
-                } catch (Exception e) {
-                    Log.e(TAG, "Failed to launch application", e);
-                }
             }
         }
 
-        private void reconnectChannels() {
-            Log.w(TAG, "reconnectChannels not implemented");
+        @Override
+        public void onVolumeChanged() {
+            if (apiClient != null) {
+                Log.d(TAG, "onVolumeChanged: " + Cast.CastApi.getVolume(apiClient));
+            }
         }
 
         @Override
-        public void onConnectionSuspended(int cause) {
-            mWaitingForReconnect = true;
+        public void onApplicationDisconnected(int errorCode) {
+            teardown();
         }
     };
 
-    private void createChannel() {
-        mRemoteMediaPlayer = new RemoteMediaPlayer();
-        mRemoteMediaPlayer.setOnStatusUpdatedListener(
-                new RemoteMediaPlayer.OnStatusUpdatedListener() {
-                    @Override
-                    public void onStatusUpdated() {
-                        /*
-                        MediaStatus mediaStatus = mRemoteMediaPlayer.getMediaStatus();
-                        if (mediaStatus != null) {
-                            boolean isPlaying = mediaStatus.getPlayerState() == MediaStatus.PLAYER_STATE_PLAYING;
-                        }
-                        */
-                    }
-                });
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        if (mWaitingForReconnect) {
+            mWaitingForReconnect = false;
+            reconnectChannels();
+        } else {
+            Log.d(TAG, "launching app with new session");
+            try {
+                PendingResult<Cast.ApplicationConnectionResult> pendingResult =
+                        Cast.CastApi.launchApplication(
+                                apiClient,
+                                CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID,
+                                false);
 
-        mRemoteMediaPlayer.setOnMetadataUpdatedListener(
-                new RemoteMediaPlayer.OnMetadataUpdatedListener() {
-                    @Override
-                    public void onMetadataUpdated() {
-                        /*
-                        MediaInfo mediaInfo = mRemoteMediaPlayer.getMediaInfo();
-                        MediaMetadata metadata = mediaInfo.getMetadata();
-                        */
-                    }
-                });
+                pendingResult.setResultCallback(this);
+
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to launch application", e);
+            }
+        }
+    }
+
+    @Override
+    public void onResult(Cast.ApplicationConnectionResult result) {
+        Status status = result.getStatus();
+        if (status.isSuccess()) {
+            if (this.sessionId != null) {
+                Log.d(TAG, "selecting route for reconnection");
+                mediaRouter.selectRoute(routeToReconnect);
+            }
+
+            sessionId = result.getSessionId();
+            applicationStarted = true;
+
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("sessionId", sessionId);
+            editor.commit();
+
+            createChannel();
+
+        } else {
+            teardown();
+        }
+    }
+
+    private void reconnectChannels() {
+        Log.w(TAG, "reconnecting Channels ");
+        Cast.CastApi.joinApplication(apiClient, CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID, sessionId)
+                .setResultCallback(this);
+    }
+
+    @Override
+    public void onConnectionSuspended(int cause) {
+        Log.d(TAG, "connection suspended");
+        mWaitingForReconnect = true;
+    }
+
+    private void createChannel() {
+        Log.d(TAG, "creating channel");
+
+        mRemoteMediaPlayer = new RemoteMediaPlayer();
+        mRemoteMediaPlayer.setOnStatusUpdatedListener(this);
+        mRemoteMediaPlayer.setOnMetadataUpdatedListener(this);
 
         try {
             Cast.CastApi.setMessageReceivedCallbacks(apiClient,
@@ -267,38 +365,9 @@ public class MainActivity extends ActionBarActivity {
                                     Log.e(TAG, "Failed to request status.");
                                 }
                             }
-                        });
+                        }
+                );
     }
-
-    private class ConnectionFailedListener implements
-            GoogleApiClient.OnConnectionFailedListener {
-        @Override
-        public void onConnectionFailed(ConnectionResult result) {
-            teardown();
-        }
-    }
-
-    private Cast.Listener castClientListener = new Cast.Listener() {
-        @Override
-        public void onApplicationStatusChanged() {
-            if (apiClient != null) {
-                Log.d(TAG, "onApplicationStatusChanged: "
-                        + Cast.CastApi.getApplicationStatus(apiClient));
-            }
-        }
-
-        @Override
-        public void onVolumeChanged() {
-            if (apiClient != null) {
-                Log.d(TAG, "onVolumeChanged: " + Cast.CastApi.getVolume(apiClient));
-            }
-        }
-
-        @Override
-        public void onApplicationDisconnected(int errorCode) {
-            teardown();
-        }
-    };
 
     private void teardown() {
         Log.d(TAG, "teardown");
@@ -314,9 +383,16 @@ public class MainActivity extends ActionBarActivity {
         selectedDevice = null;
         mWaitingForReconnect = false;
         sessionId = null;
+        routeId = null;
+
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.remove("routeId");
+        editor.remove("sessionId");
+        editor.commit();
     }
 
     private void stopChannel() {
+        Log.d(TAG, "stoping Channel and disconnecting");
         try {
             Cast.CastApi.stopApplication(apiClient, sessionId);
             if (mRemoteMediaPlayer != null) {
@@ -330,5 +406,4 @@ public class MainActivity extends ActionBarActivity {
         }
         apiClient.disconnect();
     }
-
 }
