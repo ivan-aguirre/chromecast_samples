@@ -52,8 +52,8 @@ If joining the application succeeds, it confirms that the same session is still 
 However, if joining the application fails, a different session is now running on the device so you need to disconnect from the CastDevice instance.
      */
 
-    // FIXME: tentativa de reconexao apos 'matar' aplicacao nao funciona
-    // FIXME: onApplicationStatusChanged chamado varias vezes apos reconexao
+    // FIXME: tentativa de reconexao apos 'matar' aplicacao nao funciona. Faltou implementar os detalhes acima??
+    // FIXME: onApplicationStatusChanged chamado varias vezes apos reconexao. Erro???
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -285,13 +285,23 @@ However, if joining the application fails, a different session is now running on
                 .addOnConnectionFailedListener(this)
                 .build();
 
+        Log.d(TAG, "apiClient connected? " + apiClient.isConnected());
+        Log.d(TAG, "apiClient connecting? " + apiClient.isConnecting());
+
         apiClient.connect();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 
     private class CastListener extends Cast.Listener {
         @Override
         public void onApplicationStatusChanged() {
             if (apiClient != null) {
+                Log.d(TAG, "callback => " + this);
+
                 Log.d(TAG, "onApplicationStatusChanged: "
                         + Cast.CastApi.getApplicationStatus(apiClient));
             }
@@ -358,7 +368,7 @@ However, if joining the application fails, a different session is now running on
     }
 
     private void reconnectChannels() {
-        Log.w(TAG, "reconnecting Channels ");
+        Log.w(TAG, "reconnecting to running app");
         Cast.CastApi.joinApplication(apiClient, CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID, sessionId)
                 .setResultCallback(this);
     }
