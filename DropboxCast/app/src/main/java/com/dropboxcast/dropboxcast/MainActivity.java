@@ -369,8 +369,10 @@ However, if joining the application fails, a different session is now running on
 
     private void reconnectChannels() {
         Log.w(TAG, "reconnecting to running app");
-        Cast.CastApi.joinApplication(apiClient, CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID, sessionId)
-                .setResultCallback(this);
+        if (apiClient != null) {
+            Cast.CastApi.joinApplication(apiClient, CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID, sessionId)
+                    .setResultCallback(this);
+        }
     }
 
     @Override
