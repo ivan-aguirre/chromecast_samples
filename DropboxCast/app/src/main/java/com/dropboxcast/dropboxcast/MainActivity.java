@@ -50,6 +50,9 @@ Connect to the CastDevice instance using GoogleApiClient.connect() and once conn
 If joining the application succeeds, it confirms that the same session is still running, and MediaRouter.selectRoute() can be called with the stored RouteInfo instance.
 However, if joining the application fails, a different session is now running on the device so you need to disconnect from the CastDevice instance.
      */
+
+    // FIXME: onApplicationStatusChanged chamado varias vezes apos reconexao
+
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private MediaRouter mediaRouter;
@@ -233,7 +236,7 @@ However, if joining the application fails, a different session is now running on
 
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("routeId", routeId);
-            editor.commit();
+            editor.apply();
 
             connectToDevice(selectedDevice);
         }
@@ -265,10 +268,7 @@ However, if joining the application fails, a different session is now running on
         public void onApplicationStatusChanged() {
             if (apiClient != null) {
                 Log.d(TAG, "onApplicationStatusChanged: "
-                        + Cast.CastApi.getApplicationStatus(apiClient).);
-
-                Cast.CastApi.getA
-
+                        + Cast.CastApi.getApplicationStatus(apiClient));
             }
         }
 
@@ -283,7 +283,7 @@ However, if joining the application fails, a different session is now running on
         public void onApplicationDisconnected(int errorCode) {
             teardown();
         }
-    };
+    }
 
     @Override
     public void onConnected(Bundle connectionHint) {
@@ -321,7 +321,7 @@ However, if joining the application fails, a different session is now running on
 
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("sessionId", sessionId);
-            editor.commit();
+            editor.apply();
 
             createChannel();
 
