@@ -62,8 +62,8 @@ However, if joining the application fails, a different session is now running on
     private MediaRouterCallback mediaRouterCallback;
 
     private CastDevice selectedDevice;
-    private RemoteMediaPlayer mRemoteMediaPlayer;
     private GoogleApiClient apiClient;
+    private RemoteMediaPlayer mRemoteMediaPlayer;
 
     private boolean mWaitingForReconnect;
 
@@ -72,8 +72,8 @@ However, if joining the application fails, a different session is now running on
     private String sessionId;
     private String routeId;
     private MediaRouter.RouteInfo routeToReconnect;
-    private SharedPreferences preferences;
 
+    private SharedPreferences preferences;
     private SourceSelectionFragment sourceSelectionFragment;
 
     @Override
@@ -144,6 +144,11 @@ However, if joining the application fails, a different session is now running on
     }
 
     private void showOnCastDevice(Uri link) {
+        if (mRemoteMediaPlayer == null || !isConnected()) {
+            Toast.makeText(this, R.string.no_connection, Toast.LENGTH_LONG).show();
+            return;
+        }
+
         sourceSelectionFragment.showWaiting();
 
         MediaMetadata mediaMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_PHOTO);
@@ -173,6 +178,10 @@ However, if joining the application fails, a different session is now running on
         } catch (Exception e) {
             Log.e(TAG, "Problem opening media during loading", e);
         }
+    }
+
+    private boolean isConnected() {
+        return apiClient != null && apiClient.isConnected();
     }
 
     @Override
