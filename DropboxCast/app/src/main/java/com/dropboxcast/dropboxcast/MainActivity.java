@@ -427,7 +427,7 @@ However, if joining the application fails, a different session is now running on
         SharedPreferences.Editor editor = preferences.edit();
         editor.remove("routeId");
         editor.remove("sessionId");
-        editor.commit();
+        editor.apply();
     }
 
     private void stopChannel() {
