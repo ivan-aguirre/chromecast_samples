@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Dropbox Video Cast</string>
+    <string name="label_dropbox">Dropbox</string>
+    <string name="text_select_source">Selecione um local para exibir suas fotos e vídeos.</string>
+    <string name="media_route_menu_title">Selecione um Chromecast</string>
+    <string name="load_ok">Content loaded successfully!</string>
+    <string name="load_nok">Error on load Content</string>
+    <string name="no_connection">Not connected do Chromecast!</string>
+
+</resources>

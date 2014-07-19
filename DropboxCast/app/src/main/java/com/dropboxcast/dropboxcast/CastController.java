@@ -29,6 +29,7 @@ import com.google.android.gms.common.api.Status;
 
 import java.io.IOException;
 
+// TODO separar externalizar metodos de callbacks publicos mantendo no Controller apenas metodos de API
 public class CastController implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -47,9 +48,7 @@ public class CastController implements
     private RemoteMediaPlayer mRemoteMediaPlayer;
 
     private boolean waitingForReconnect;
-
     private boolean controllerStarted;
-
     private boolean applicationStarted;
 
     private String sessionId;
@@ -233,7 +232,7 @@ public class CastController implements
         mediaMetadata.putString(MediaMetadata.KEY_TITLE, link.toString());
         MediaInfo mediaInfo = new MediaInfo.Builder(
                 link.toString())
-                .setContentType("image/jpeg")
+                .setContentType("image/jpeg") //FIXME infer mime type by URL extension
                 .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
                 .setMetadata(mediaMetadata)
                 .build();

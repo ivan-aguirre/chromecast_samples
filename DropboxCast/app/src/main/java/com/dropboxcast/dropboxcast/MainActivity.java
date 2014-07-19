@@ -13,18 +13,23 @@ public class MainActivity extends ActionBarActivity {
 
     // FIXME: tentativa de reconexao apos 'matar' executa o callback duas vezes (o workflow de conexao esta errado).
     // FIXME: ao matar a activity, desconectar tudo e voltar o botao continua selecionado (bug)?
+    // FIXME: melhorar UI (apenas Dropbox)
 
     /*
     TODO:
-    - Companion Library para tocar video
+    - Companion Library para tocar video (Done)
     - Receiver para video
     - Presentation com MediaRouter
 
     TODO (Nice to Have)
     - Jokenpo
     - IntentService
+
+     TODO (Citar na apresentacao)
+    - Google Service availability check.
     - Authentication
     - Tratamento do Wifi
+
      */
     private static final String TAG = MainActivity.class.getSimpleName();
 
