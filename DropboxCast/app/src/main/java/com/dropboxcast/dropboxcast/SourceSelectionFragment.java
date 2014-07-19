@@ -1,5 +1,6 @@
 package com.dropboxcast.dropboxcast;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,12 +11,17 @@ import android.widget.ProgressBar;
 
 import com.dropbox.chooser.android.DbxChooser;
 
-public class SourceSelectionFragment extends Fragment {
+public class SourceSelectionFragment extends Fragment implements CastController.SendingContentCallback{
 
     private static final String APP_KEY = "ubphzyrw12f9ecz"; //FIXME remover da build
     private ProgressBar loadingBar;
 
+    private CastController castController;
+
     public SourceSelectionFragment() {
+        if (castController == null) {
+            this.castController = new CastController(this);
+        }
     }
 
     @Override
@@ -40,11 +46,22 @@ public class SourceSelectionFragment extends Fragment {
         return rootView;
     }
 
-    public void hideWaiting() {
-        loadingBar.setVisibility(View.INVISIBLE);
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
     }
 
-    public void showWaiting() {
+    public CastController getCastController() {
+        return this.castController;
+    }
+
+    @Override
+    public void onStartSending() {
         loadingBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onContentSent(boolean success) {
+        loadingBar.setVisibility(View.INVISIBLE);
     }
 }
