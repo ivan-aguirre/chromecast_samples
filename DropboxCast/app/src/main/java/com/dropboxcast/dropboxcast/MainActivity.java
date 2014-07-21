@@ -30,6 +30,15 @@ public class MainActivity extends ActionBarActivity {
     - Authentication
     - Tratamento do Wifi
 
+    - Antes de registrart sua aplicação no https://cast.google.com/publish é preciso pagar R$ 5,00.
+
+    - Namespaces are a powerful mechanism for standardizing protocols to be used by multiple sender
+      applications. For example an application developer may decide to implement and define a
+      library for senders that implements their own custom protocol. In this way a community of
+      developers can create applications that know how to communicate with a common receiver application.
+      This is the reason the cast media namespace is standardized, so a generic remote control can be created.
+
+
      */
     private static final String TAG = MainActivity.class.getSimpleName();
 
