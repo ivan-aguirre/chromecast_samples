@@ -39,6 +39,8 @@ public class CastController implements
 
     private static final String TAG = CastController.class.getSimpleName();
 
+    private static final String RECEIVER_ID = CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID;
+    
     private MediaRouter mediaRouter;
     private MediaRouteSelector mediaRouteSelector;
     private MediaRouterCallback mediaRouterCallback;
@@ -94,8 +96,7 @@ public class CastController implements
     private void initializeMediaRouterSelector() {
         this.mediaRouter = MediaRouter.getInstance(this.ctx);
 
-        String categoryForCast = CastMediaControlIntent.categoryForCast(
-                CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID);
+        String categoryForCast = CastMediaControlIntent.categoryForCast(RECEIVER_ID);
 
         this.mediaRouteSelector = new MediaRouteSelector.Builder()
                 .addControlCategory(categoryForCast)
@@ -115,7 +116,7 @@ public class CastController implements
                 PendingResult<Cast.ApplicationConnectionResult> pendingResult =
                         Cast.CastApi.launchApplication(
                                 apiClient,
-                                CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID,
+                                RECEIVER_ID,
                                 false);
 
                 pendingResult.setResultCallback(this);
@@ -140,7 +141,7 @@ public class CastController implements
         Log.w(TAG, "reconnecting to running app");
         if (this.apiClient != null) {
             Cast.CastApi.joinApplication(this.apiClient,
-                    CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID,
+                    RECEIVER_ID,
                     this.sessionId)
                     .setResultCallback(this);
         }
