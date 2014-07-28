@@ -13,7 +13,7 @@ import com.google.sample.castcompanionlibrary.cast.VideoCastManager;
 
 public class SourceSelectionFragment extends Fragment {
 
-    private static final String APP_KEY = "ubphzyrw12f9ecz"; //FIXME remover da build
+    private static final String APP_KEY = "your Dropbox app key"; //FIXME remover da build
     private ProgressBar loadingBar;
 
     public SourceSelectionFragment() {

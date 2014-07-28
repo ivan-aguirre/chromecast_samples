@@ -18,7 +18,7 @@ public class MainActivity extends ActionBarActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private SourceSelectionFragment sourceSelectionFragment; //TODO: remove this Fragment
+    private SourceSelectionFragment sourceSelectionFragment; //TODO: useless Fragment
     private VideoCastManager mVideoCastManager;
     private MiniController mMini;
 

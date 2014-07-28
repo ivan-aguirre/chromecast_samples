@@ -169,14 +169,6 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 }
             };
 
-    /**
-     * The presentation to show on the secondary display.
-     * <p>
-     * Note that this display may have different metrics from the display on
-     * which the main activity is showing so we must be careful to use the
-     * presentation's own {@link android.content.Context} whenever we load resources.
-     * </p>
-     */
     private final static class DemoPresentation extends Presentation {
 
         private ProgressBar progressBar;
@@ -189,15 +181,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
-            // Be sure to call the super class.
             super.onCreate(savedInstanceState);
-
-            // Get the resources for the context of the presentation.
-            // Notice that we are getting the resources from the context of the
-            // presentation.
             Resources r = getContext().getResources();
-
-            // Inflate the layout.
             setContentView(R.layout.test_secondary);
 
             progressBar = (ProgressBar) findViewById(R.id.progressBar);

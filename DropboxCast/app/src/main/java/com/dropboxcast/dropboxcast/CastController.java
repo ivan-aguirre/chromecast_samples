@@ -29,7 +29,6 @@ import com.google.android.gms.common.api.Status;
 
 import java.io.IOException;
 
-// TODO separar externalizar metodos de callbacks publicos mantendo no Controller apenas metodos de API
 public class CastController implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,

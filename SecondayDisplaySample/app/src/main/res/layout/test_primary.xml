@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:weightSum="1"
+    android:background="#c71c811e">
     <TextView android:id="@+id/info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -10,11 +12,12 @@
         android:textAppearance="?android:attr/textAppearanceMedium"/>
 
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="232dp"
         android:layout_height="wrap_content"
         android:text="@string/the_switch"
         android:id="@+id/btn_switch"
         android:layout_gravity="center_horizontal"
-        android:layout_weight="0" />
+        android:layout_weight="0.16"
+        android:background="#ff222b51" />
 
 </LinearLayout>

@@ -13,7 +13,7 @@ import com.dropbox.chooser.android.DbxChooser;
 
 public class SourceSelectionFragment extends Fragment implements CastController.SendingContentCallback{
 
-    private static final String APP_KEY = "ubphzyrw12f9ecz"; //FIXME remover da build
+    private static final String APP_KEY = "your Dropbox Key";
     private ProgressBar loadingBar;
 
     private CastController castController;

@@ -11,35 +11,15 @@ import com.dropbox.chooser.android.DbxChooser;
 
 public class MainActivity extends ActionBarActivity {
 
-    // FIXME: tentativa de reconexao apos 'matar' executa o callback duas vezes (o workflow de conexao esta errado).
-    // FIXME: ao matar a activity, desconectar tudo e voltar o botao continua selecionado (bug)?
-    // FIXME: melhorar UI (apenas Dropbox)
-
     /*
-    TODO:
-    - Companion Library para tocar video (Done)
-    - Receiver para video
-    - Presentation com MediaRouter
-
-    TODO (Nice to Have)
-    - Jokenpo
-    - IntentService
-
-     TODO (Citar na apresentacao)
-    - Google Service availability check.
-    - Authentication
-    - Tratamento do Wifi
-
-    - Antes de registrart sua aplicação no https://cast.google.com/publish é preciso pagar R$ 5,00.
-
-    - Namespaces are a powerful mechanism for standardizing protocols to be used by multiple sender
-      applications. For example an application developer may decide to implement and define a
-      library for senders that implements their own custom protocol. In this way a community of
-      developers can create applications that know how to communicate with a common receiver application.
-      This is the reason the cast media namespace is standardized, so a generic remote control can be created.
-
-
+     * FIXME: after killing process and reconnecting two callbacks are executed.
+     * Reconnection worfklow may be broken.
      */
+    
+    /*
+     * FIXME: kill Activity and unconnect. Button remains selected (platform bug)?
+     */
+
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private SourceSelectionFragment sourceSelectionFragment;
