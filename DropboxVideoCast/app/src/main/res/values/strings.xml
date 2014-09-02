@@ -8,5 +8,6 @@
     <string name="load_ok">Content loaded successfully!</string>
     <string name="load_nok">Error on load Content</string>
     <string name="no_connection">Not connected do Chromecast!</string>
+    <string name="cast">Cast</string>
 
 </resources>

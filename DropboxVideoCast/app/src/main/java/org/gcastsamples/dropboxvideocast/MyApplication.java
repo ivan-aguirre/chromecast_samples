@@ -3,7 +3,6 @@ package org.gcastsamples.dropboxvideocast;
 import android.app.Application;
 import android.content.Context;
 
-import com.google.android.gms.cast.CastMediaControlIntent;
 import com.google.sample.castcompanionlibrary.cast.VideoCastManager;
 
 public class MyApplication extends Application {
@@ -12,8 +11,9 @@ public class MyApplication extends Application {
 
     public static VideoCastManager getVideoCastManager(Context ctx) {
         if (null == mCastMgr) {
+            //CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID,
             mCastMgr = VideoCastManager.initialize(ctx,
-                    CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID,
+                    "C22292BA",
                     null,  // Player Control, null == uses lib's default
                     null); // Only for Custom Data Channel
             mCastMgr.enableFeatures(
