@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">PlotAndCast</string>
+    <string name="plot">Plot Graph</string>
+    <string name="session_reconnection_attempt">Trying to reconnect…</string>
+    <string name="ccl_version">CustomVersion</string>
+    <string name="failed_to_connect">Failed to connect.</string>
+    <string name="ok">Ok</string>
+    <string name="error">Error!</string>
+    <string name="error_sending">Can\'t send message to Chromecast.</string>
+    <string name="media_route_menu_title">Select a Device</string>
+
+</resources>
