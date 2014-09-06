@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">PlotAndCast</string>
+    <string name="app_name">Plot and Cast!</string>
     <string name="plot">Plot Graph</string>
     <string name="session_reconnection_attempt">Trying to reconnect…</string>
     <string name="ccl_version">CustomVersion</string>
