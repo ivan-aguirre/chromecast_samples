@@ -10,5 +10,11 @@
     <string name="error">Error!</string>
     <string name="error_sending">Can\'t send message to Chromecast.</string>
     <string name="media_route_menu_title">Select a Device</string>
+    <string name="initial_value">Initial Value</string>
+    <string name="final_value">Final Value</string>
+    <string name="increment">Increment</string>
+    <string name="js_function">Javascript Function of x (don\' forget return statement!)</string>
+    <string name="example">Give me an Example :)</string>
+    <string name="missing_values">You need to fill all fields!</string>
 
 </resources>
