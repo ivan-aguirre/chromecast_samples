@@ -59,7 +59,7 @@ public class ListPresentation extends Presentation {
             switch (imageIndex) {
                 case 0 : return R.drawable.rj;
                 case 1 : return R.drawable.sp;
-                case 3 : return R.drawable.bh;
+                case 2 : return R.drawable.bh;
                 default: return R.drawable.rj;
             }
         }
