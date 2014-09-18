@@ -1,0 +1,4 @@
+<resources>
+    <!-- note that this margin will be used on layout being rendered on TV -->
+    <dimen name="activity_horizontal_margin">264dp</dimen>
+</resources>

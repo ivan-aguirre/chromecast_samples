@@ -67,14 +67,5 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                 .build();
 
         mVideoCastManager.startCastControllerActivity(this, mediaInfo, 0, true);
-
-        try {
-            mVideoCastManager.sendDataMessage("It works!!!");
-        } catch (TransientNetworkDisconnectionException e) {
-            Log.e(MainActivity.class.getSimpleName(), "Error sending message", e);
-
-        } catch (NoConnectionException e) {
-            Log.e(MainActivity.class.getSimpleName(), "Error sending message", e);
-        }
     }
 }

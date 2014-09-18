@@ -26,6 +26,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.view.View;
+import android.widget.EditText;
 
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
@@ -326,5 +328,14 @@ public class Utils {
                 .setMetadata(metaData)
                 .setCustomData(customData)
                 .build();
+    }
+
+    public static boolean allFilledWithText(EditText... views) {
+        for (EditText v : views) {
+            if (v.getText() != null && v.getText().toString().trim().length() == 0) {
+                return false;
+            }
+        }
+        return true;
     }
 }

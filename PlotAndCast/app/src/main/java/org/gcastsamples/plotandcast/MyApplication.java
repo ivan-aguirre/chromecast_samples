@@ -17,7 +17,7 @@ public class MyApplication extends Application {
 
     public static DataCastManager getDataCastManager(Context ctx) {
         if (null == mCastMgr) {
-            mCastMgr = DataCastManager.initialize(ctx, "AC923A7D", NAME_SPACE);
+            mCastMgr = DataCastManager.initialize(ctx, "C22292BA", NAME_SPACE);
 
             mCastMgr.enableFeatures(DataCastManager.FEATURE_DEBUGGING);
 
