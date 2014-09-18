@@ -330,6 +330,11 @@ public class Utils {
                 .build();
     }
 
+	/**
+	 * FIXME move to other Util class and let this class as distributed by CastCompanionLibrary.
+	 *
+	 * @author Ivan de Aguirre (ivan.aguirre@gmail.com)
+ 	 */
     public static boolean allFilledWithText(EditText... views) {
         for (EditText v : views) {
             if (v.getText() != null && v.getText().toString().trim().length() == 0) {
