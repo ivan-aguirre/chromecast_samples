@@ -6,7 +6,7 @@ Video receiver shows Notifications from Android device and advertising.
 
 Requires [CastCompanionLibrary](https://github.com/googlecast/CastCompanionLibrary-android).
 
-Check the receiver at ivan-aguirre.github.io/video-ccast-player/receiver.html
+Check the receiver at http://ivan-aguirre.github.io/video-ccast-player/receiver.html
 
 ##PlotAndCast
 
